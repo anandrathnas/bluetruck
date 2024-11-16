@@ -1,0 +1,49 @@
+name: Publish to Central Sonatype
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Prepare settings.xml
+        run: |
+          sed -i "s|OSSRH_USERNAME|${{ secrets.OSSRH_USERNAME }}|" ./settings.xml
+          sed -i "s|OSSRH_TOKEN|${{ secrets.OSSRH_TOKEN }}|" ./settings.xml
+
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 -d | gpg --batch --import
+          KEY_ID=$(gpg --list-keys --with-colons | grep pub | cut -d: -f5)
+          echo "GPG key imported: $KEY_ID"
+          sed -i "s|REPLACE_GPG_KEY_ID_HERE|$KEY_ID|" ./pom.xml
+        env:
+          GNUPGHOME: ${{ runner.temp }}/.gnupg
+
+      - name: Maven set version to github run number
+        run: |
+          sed -i "s|REPLACE_BUILD_VERSION_HERE|0.0.${{ github.run_number }}|" ./pom.xml
+        env:
+          GNUPGHOME: ${{ runner.temp }}/.gnupg
+
+      - name: Publish to Sonatype Central
+        run: |
+          mvn clean deploy -e -s ./settings.xml
+        env:
+          GNUPGHOME: ${{ runner.temp }}/.gnupg
