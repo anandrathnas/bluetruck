@@ -31,11 +31,11 @@ public class BlueTruckAlertService {
     public void alert() {
         try {
             if (!matchesProfiles) {
-                log.info("Beeping skipped since profiles don't match {} != {}"
+                log.debug("Beeping skipped since profiles don't match {} != {}"
                         , env.getActiveProfiles(), bluetruckConfigProperties.getProfiles());
                 return;
             }
-            log.info("Going to beep");
+            log.debug("Going to beep");
             int duration = bluetruckConfigProperties.getDuration();
             int frequency = bluetruckConfigProperties.getFrequency();
             SourceDataLine line = AudioSystem.getSourceDataLine(new AudioFormat(44100, 16, 1, true, true));
@@ -50,7 +50,7 @@ public class BlueTruckAlertService {
             line.drain();
             line.stop();
             line.close();
-            log.info("Done with beep");
+            log.debug("Done with beep");
         } catch (LineUnavailableException e) {
             log.warn("Problem beeping: {}", e.getMessage());
         }
