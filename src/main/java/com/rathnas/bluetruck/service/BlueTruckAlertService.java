@@ -50,7 +50,7 @@ public class BlueTruckAlertService {
             line.drain();
             line.stop();
             line.close();
-            log.debug("Done with beep");
+            log.info("BlueTruck beeped");
         } catch (LineUnavailableException e) {
             log.warn("Problem beeping: {}", e.getMessage());
         }
