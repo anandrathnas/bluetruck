@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
 @Slf4j
@@ -51,7 +50,7 @@ public class BlueTruckAlertService {
             line.stop();
             line.close();
             log.info("BlueTruck beeped");
-        } catch (LineUnavailableException e) {
+        } catch (Exception e) {
             log.warn("Problem beeping: {}", e.getMessage());
         }
     }
